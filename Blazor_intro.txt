@@ -182,7 +182,7 @@ There are 2 approaches, to split component HTML and C# code into their own separ
 1. Partial files approach
 2. Base class approach
 
-Partial files approach
+=> Partial files approach
 The HTML markup remains in Counter.razor file
 // Counter.razor
 @page "/counter"
@@ -207,4 +207,23 @@ public partial class Counter
     }
 }
 
-Base class approach
+=> Base class approach
+Just like the partial class approach, even with the base class approach, the HTML markup remains in Counter.razor file.
+Move the C# code to a separate class. I named it CounterBase. 
+You can name the class anything you want, but it is a common convention to have the same name as the component but suffixed with the word Base. 
+
+The access modifier must be at least protected if you wish to access the class member from the HTML.
+// CounterBase.cs
+public class CounterBase : ComponentBase
+{
+    protected int currentCount = 0;
+
+    protected void IncrementCount()
+    {
+        currentCount++;
+    }
+}
+
+Finally, in Counter.razor file do not forget to include the following inherits directive.
+@inherits CounterBase
+
