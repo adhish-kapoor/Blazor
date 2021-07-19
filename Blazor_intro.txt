@@ -1,0 +1,48 @@
+# Blazor 
+With Blazor we can now build interactive web UIs using C# instead of JavaScript. C# code can be executed both on the server and in the client browser.
+=> How can we execute c# code in the client browser?
+Blazor can run C# code directly in the browser, using WebAssembly. 
+It runs in the same security sandbox as JavaScript frameworks like Angular, React, Vue etc. 
+Not just C#, in fact, we can run any type of code in the browser using WebAssembly.
+
+WebAssembly is based on open web standards. So it is a native part of all modern browsers including mobile browsers.
+
+Blazor WebAssembly (also called client-side blazor) is still in preview. So, if you try to create a Blazor project using Visual Studio 2019, 
+you will only find Blazor Server App template and not Blazor WebAssembly App template.
+
+Execute the following command to install the Blazor WebAssembly App template
+dotnet new --install Microsoft.AspNetCore.Blazor.Templates::3.1.0-preview4.19579.2
+
+# ASP.NET Core Blazor Hosting Models
+=======================================
+With Blazor we have two hosting models, Blazor WebAssembly (Client-side hosting model) and Blazor Server (Server-side hosting model)
+
+1. Blazor WebAssembly
+=======================
+With this hosting model, the application runs directly in the browser on WebAssembly.
+In the client-side model (Blazor WebAssembly), the Blazor app, its dependencies, and the .NET runtime are downloaded to the browser, 
+and the app is executed directly on the browser UI thread.
+
+=> Pros of Blazor WebAssembly
+1. A Blazor WebAssembly app can run entirely on the client machine. 
+So, after the application is downloaded, a connection to the server is not required. 
+This means there is no need for your server to be up and running 24X7.
+
+2. Work is offloaded from the server to the client. It is the client resources and capabilities that are being used.
+
+3. We do not need a full-blown ASP.NET Core web server to host the application. 
+We just need a server somewhere, that can deliver the application to the client browser. 
+This means we can host the application on our own server on the internet somewhere, in the cloud, on Azure as a static website or even on a CDN Content Delivery Network.
+
+=> Cons of Blazor WebAssembly hosting model
+1. The very first request usually takes longer as the entire app, it's dependencies and the .NET runtime must be downloaded to the client browser. 
+Keep in mind, it's only the first request that takes longer than usual. 
+If that same client visits the application later, it usually starts fast because the browser caches the files.
+
+2. Depending on the nature of the application, capable client hardware and software is required. 
+From software standpoint, for example, at least a browser with WebAssembly support is required.
+
+2. Blazor Server
+====================
+1. With this hosting model, the application is executed on the server. Between the client and the server a SignalR connection is established.
+
