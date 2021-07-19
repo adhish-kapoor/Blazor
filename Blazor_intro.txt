@@ -45,4 +45,133 @@ From software standpoint, for example, at least a browser with WebAssembly suppo
 2. Blazor Server
 ====================
 1. With this hosting model, the application is executed on the server. Between the client and the server a SignalR connection is established.
+When an event occurs on the client such as a button click for example, the information about the event is sent to the server over the SignalR connection. 
+The server handles the event and for the generated HTML a diff (difference) is calculated. 
+The entire HTML is not sent again to the client, it's only the diff that is sent to the client over the SignalR connection. 
+The browser then updates the UI. Since only the diff is applied to update the UI, the application feels faster and more responsive to the user.
+
+=>  Pros of Blazor Server
+1. The app loads much faster as the download size is significantly smaller than a Blazor WebAssembly app.
+2. Since the app runs on the server, it can take full advantage of server capabilities, including use of any .NET Core compatible APIs.
+3. All the client needs, to use the app is a browser. Even browsers that don't support WebAssembly can be used.
+4. More secure because the app's .NET/C# code isn't served to clients.
+
+=> Cons of Blazor Server
+1. A full-blown ASP.NET Core server is required to host the application. Serverless deployment scenarios such as serving the app from a CDN aren't possible.
+2. An active connection to the server is always required. This means there is a need to keep the server up and running 24X7. 
+If the server is down, the application stops working.
+3. As every user interaction involves a round trip to the server a higher latency usually exists when compared with Blazor WebAssembly hosting.
+4. Scalability can be challenging especially for the apps that have many users as the server must manage multiple client connections and handle client state.
+However, we can overcome this scalability issue, by using Azure SignalR Service with a Blazor Server app. 
+This service allows a Blazor Server app to scale really well by supporting a large number of concurrent SignalR connections.
+
+# Blazor project structure
+=============================
+Program.cs 
+This file contains the Main() method which is the entry point for both the project types (i.e Blazor WebAssembly and Blazor Server). 
+
+In a Blazor server project, the Main() method calls CreateHostBuilder() method which sets up the ASP.NET Core host. 
+
+In a Blazor WebAssembly project, the App component, which is the root component of the application, is specified in the Main method. 
+This root component is present in the root project folder in App.razor file.
+
+Components are the building blocks of a Blazor application. 
+
+wwwroot
+For both the project types, this folder contains the static files like images, stylesheets etc.
+
+App.razor
+This is the root component of the application. It uses the built-in Router component and sets up client-side routing. 
+It is this Router component that intercepts browser navigation and renders the page that matches the requested address. 
+The Router uses the Found property to display the content when a match is found. 
+If a match is not found, the NotFound property is used to display the  message - Sorry, there's nothing at this address.
+
+Pages folder
+This folder contains the _Host razor page and the routable components that make up the Blazor app. The components have the .razor extension.
+Index component (Index.razor) – Rendered when we navigate to the root application URL.
+Counter component (Counter.razor) – Rendered when we navigate to the path /counter.
+FetchData component (FetchData.razor) – Rendered when we navigate to the path /fetchdata.
+Error component (Error.razor) – Rendered when an unhandled exception occurs in the blazor app.
+
+Shared folder
+As the name implies, contains the shared components
+
+MainLayout component (MainLayout.razor)
+The application's main layout component
+
+NavMenu component (NavMenu.razor)
+Implements the navigation menu on the sidebar. 
+NavLink component, renders navigation links to other Razor components like the index, counter and fetchdata components. 
+This NavLink component is intelligent enough to highlight the navigation menu item, if it's component is currently displayed.
+
+_Imports.razor
+This is like the _ViewImports.cshtml file in an asp.net core MVC project. 
+This file contains the common namespaces so we do not have to include them in every razor component.
+
+wwwroot/index.html
+This is the root page in a Blazor WebAssembly project and is implemented as an html page. 
+When a first request hits the application, it is this page, that is initially served. 
+It has the standard HTML, HEAD and BODY tags. It specifies where the root application component App.razor should be rendered. 
+You can find this App.razor root component in the root project folder. It is included on the page as an HTML element <app>.
+
+This index.html page also loads the blazor WebAssembly JavaScript file (_framework/blazor.webassembly.js). 
+It is this file that is responsible for downloading:-
+
+The compiled blazor application, it's dependencies and the .NET runtime
+It also initializes the runtime to run the blazor app in the browser
+
+Startup.cs
+This file is present only in the Blazor Server project. As the name implies it contains the applications's startup logic. 
+The Startup class contains the following two methods:
+
+ConfigureServices - Configures the applications DI i.e dependency injection services. 
+For example AddServerSideBlazor() method adds Blazor server side services.
+On the IServiceCollection interface there are several methods that start with the word Add. 
+These methods add different services for the Blazor application. We can even add our own services to the DI container.
+
+Configure - Configures the app's request processing pipeline. 
+Depending on what we want the Blazor application to be capable of doing we add or remove the respective middleware components from request processing pipeline. 
+For example, UseStaticFiles() method adds the middleware component that can server static files like images, css etc.
+
+Pages/_Host.cshtml
+This is the root page of the application and is specified by calling MapFallbackToPage("/_Host") method. It is implemented as a razor page.
+
+It is this page, that is initially served when a first request hits the application. 
+It has the standard HTML, HEAD and BODY tags. 
+It also specifies where the root application component, App component (App.razor) must be rendered. 
+Finally, it also loads the blazor.server.js JavaScript file, which sets up the real-time SignalR connection between the server and the client browser. 
+This connection is used to exchange information between the client and the server. SignalR, is a great framework for adding real-time web functionality to apps. 
+
+Data folder (Blazor Server)
+Contains code files related to the sample WeatherForecast service
+
+appsettings.json (Blazor Server)
+Just like an asp.net core mvc project, a blazor project also uses this file to store the Configuration settings.
+
+# Blazor razor components
+============================
+The following is the Counter component that we get when we create a new Blazor project.
+@page "/counter"
+<h1>Counter</h1>
+<p>Current count: @currentCount</p>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@code 
+{
+    private int currentCount = 0;
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
+
+It is a combination of two things:
+HTML markup which defines the user interface of the component i.e the look and feel.
+C# code which defines the processing logic
+
+When the application is compiled, the HTML and C# code converted into a component class. 
+The name of the generated class matches the name of the component file.
+A component file name must start with an uppercase character. 
+If you add a component file that starts with a lower case character, the code will fail to compile and you get the following compiler error.
+
+"Component names cannot start with a lowercase character"
 
