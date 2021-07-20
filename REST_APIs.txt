@@ -1,0 +1,33 @@
+# REST Constraints
+=====================
+When building a REST API, we have to follow a set of rules. 
+These are commonly called as REST Constraints. The following are some of the common REST constraints.
+
+1. Client Server constraint
+This is the first constraint. Client sends a request and the server sends a response.
+In our case Client is the Employee portal which sends a request for employee data and the server, the REST API, responds with employee data.
+This separation of concerns supports the independent evolution of the client-side logic and server-side logic.
+
+2. Stateless constraint
+The communication between the client and the server must be stateless between requests. 
+This means we should not be storing anything on the server related to the client.
+The request from the client should contain all the necessary information for the server to process that request. 
+This ensures that each request can be treated independently by the server.
+
+3. Cacheable constraint
+Some data provided by the server like list of products, or list of departments in a company does not change that often. 
+This constraint says that let the client know how long this data is good for, so that the client does not have to come back to the server for that data over and over again.
+
+4. Uniform Interface
+As the name implies, this constraint defines the interface between the client and the server. 
+This constraint helps us understand how a REST API actually works. 
+
+In the context of a REST API, a resource is a data entity like Product, Employee, Customer, Order etc. 
+For example, a REST API that provides employee data makes the list of employees available at the following URI (Uniform Resource Identifier).
+
+            http://xxx.com/api/employees
+         
+So, each resource, is identified by a specific URI. 
+For example, the list of employees are available at the URI http://pragimtech.com/api/employees.
+Similarly, the list of products are available at the URI http://pragimtech.com/api/products.
+
