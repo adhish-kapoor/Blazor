@@ -31,3 +31,11 @@ So, each resource, is identified by a specific URI.
 For example, the list of employees are available at the URI http://pragimtech.com/api/employees.
 Similarly, the list of products are available at the URI http://pragimtech.com/api/products.
 
+# PUT V/S PATCH
+==================
+PUT updates the entire object i.e FirstName, LastName, DOB, Gender, Email etc of an employee. 
+Basically all the properties of the object are updated.
+
+PATCH is used when you want to do a partial update i.e only a subset of the properties. 
+May be just FirstName and Gender of an employee object.
+
