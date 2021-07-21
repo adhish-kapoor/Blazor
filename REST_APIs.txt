@@ -103,3 +103,61 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
     // Code to seed data
 }
 
+# Get list of resources using ASP.NET Core REST API
+=====================================================
+To create a REST API using ASP.NET core, create a controller class that derives from the built-in ControllerBase class. 
+ControllerBase is in Microsoft.AspNetCore.Mvc namespace.
+
+Controller vs ControllerBase in ASP.NET Core
+If you are creating a REST API, make your Controller class derive from ControllerBase and not Controller class. 
+Controller derives from ControllerBase and adds support for MVC views.
+
+So create a controller that derives from Controller class if you are building an MVC web application. 
+On the other hand, if you are creating a Web API, create a controller class that derives from ControllerBase class. 
+So in short, Controller is for MVC web applications and ControllerBase is for MVC Web APIs.
+
+ASP.NET Core API Controller Example
+=======================================
+1. EmployeesController is an API Controller so decorate it with [ApiController] attribute
+2. As the name implies, [Route] attribute specifies the route. 
+The word [controller] in square brackets specifies we just use the name of the Controller in the URL to get the EmployeesController.
+3. IEmployeeRepository is injected into the Controller class using the standrad constructor injection. 
+It is this IEmployeeRepository that retrieves employee data from the underlying SQL Server database. 
+4. [HttpGet] attribute specifies that this method should respond to http GET request.
+5. The return type of Task<ActionResult> allows us to return status code 200 OK along with the list of employees or status code 500 if there is a server error retrieving data from the database.
+
+using EmployeeManagement.Api.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmployeesController : ControllerBase
+    {
+        private readonly IEmployeeRepository employeeRepository;
+
+        public EmployeesController(IEmployeeRepository employeeRepository)
+        {
+            this.employeeRepository = employeeRepository;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetEmployees()
+        {
+            try
+            {
+                return Ok(await employeeRepository.GetEmployees());
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+					"Error retrieving data from the database");
+            }
+        }
+    }
+}
+
