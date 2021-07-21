@@ -236,3 +236,66 @@ These validation attributes are in System.ComponentModel.DataAnnotations namespa
 
 Install-Package System.ComponentModel.Annotations
 
+# Custom model validation errors in ASP.NET Core REST API
+=============================================================
+To add a custom model validation error, use AddModelError() method of the ModelState object.
+
+[HttpPost]
+public async Task<ActionResult<Employee>> CreateEmployee(Employee employee)
+{
+    try
+    {
+        if(employee == null)
+        {
+            return BadRequest();
+        }
+
+        // Add custom model validation error
+        var emp = employeeRepository.GetEmployeeByEmail(employee.Email);
+
+        if(emp != null)
+        {
+            ModelState.AddModelError("email", "Employee email already in use");
+            return BadRequest(ModelState);
+        }
+
+        var createdEmployee = await employeeRepository.AddEmployee(employee);
+
+        return CreatedAtAction(nameof(GetEmployee), new { id = createdEmployee.EmployeeId },
+            createdEmployee);
+    }
+    catch (Exception)
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            "Error retrieving data from the database");
+    }
+}
+
+# ASP.NET Core REST API and ModelState.IsValid check
+========================================================
+In an ASP.NET Core REST API, there is no need to explicitly check if the model state is Valid.
+Since the controller class is decorated with the [ApiController] attribute, 
+it takes care of checking if the model state is valid and automatically returns 400 response along the validation errors.
+
+[Route("api/[controller]")]
+[ApiController]
+public class EmployeesController : ControllerBase
+{
+}
+
+The following is the response we get when the model validation fails
+{
+    "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "|65b7c07c-4323622998dd3b3a.",
+    "errors": {
+        "Email": [
+            "The Email field is required."
+        ],
+        "FirstName": [
+            "The field FirstName must be a string with a minimum length of 2 and a maximum length of 100."
+        ]
+    }
+}
+
